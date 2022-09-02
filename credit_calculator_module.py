@@ -10,10 +10,10 @@ class Credit():
     total_interest: float = 0
 
     @staticmethod
-    def show_training_info(self):
+    def show_payment_info(self):
         return InfoMessage(
-            month_payment = self.get_payment_month()
-            total_interest = self.get_total_interest()
+            month_payment = self.get_payment_month(),
+            total_interest = self.get_total_interest(),
             total_payment = self.get_total_amount()
         )
 
@@ -21,7 +21,8 @@ class Credit():
 class AnnuityPayment(Credit):
 
     def get_payment_month(self):    #Total month payment
-        return self.amount * (self.interest/100/12 + self.interest/100/12 / ((1 + self.interest/12/100)**self.term*12 - 1))
+        return self.amount * (self.interest/100/12 + self.interest/100/12 /
+            ((1 + self.interest/12/100)**self.term*12 - 1))
 
     def get_total_interest(self):
         for month in range(self.term * 12):
@@ -71,7 +72,30 @@ class InfoMessage():
             total_payment = '%.2f' % self.total_payment
             )
 
-if __name__ == '__main__':
+def create_credit():
+    CALCULATOR = {'ANUIT':AnnuityPayment,
+                  'DIFF':DifferentialPayment
+    }
+    
+    amount = float(input('amount: '))
+    interest = float(input('interest: '))
+    downpayment = float(input('downpayment: '))
+    term = int(input('term: '))
+    calculator  = input('ANUIT - annuity payment, DIFF - differential payment: ')
+    
+    try:
+        credit_object = CALCULATOR[calculator](amount, interest, downpayment, term)
+    except KeyError:
+        raise KeyError(f'Вы ввели не поддерживаемый кредитный калькулятор: {calculator}')
+    return credit_object
+    
+def main(credit):
+    """Function for creating user message with activity parameters. """
+    info = Credit.show_payment_info(credit)
+    print(InfoMessage.printing(info))
 
+if __name__ == '__main__':
+    credit = create_credit()
+    main(credit)
     
     
