@@ -6,11 +6,11 @@ class Credit():
     """Class for creating credit object."""
     amount: float
     interest: float
-    downpayment: float
-    term: int
+    downpayment: float = 0
+    term: int = 0
     total_interest: float = 0
     
-    def get_debt(self):
+    def get_debt(self):     #Total debt for refunding
         return self.amount - self.downpayment
         
     @staticmethod
@@ -29,15 +29,15 @@ class AnnuityPayment(Credit):
         return self.get_debt() * (self.interest/100/12 + self.interest/100/12/
             ((1 + self.interest/12/100)**(self.term*12) - 1))
 
-    def get_total_interest(self):
+    def get_total_interest(self):   # Total credit overpayment.
         debt_amount = self.get_debt()
-        period = self.term * 12
+        period = 0
         
-        while period > 0:
+        while period < self.term * 12:
+            period += 1
             self.total_interest += (debt_amount * self.interest / 12 / 100)
             debt_amount = debt_amount - (self.get_payment_month() -
                           debt_amount * self.interest / 12 / 100)
-            period -= 1
         return self.total_interest
 
         
@@ -45,27 +45,24 @@ class AnnuityPayment(Credit):
 class DifferentialPayment(Credit):
     """Class with logic of calculations for annuity payment."""
 
-    def get_debt_month(self):   # Total month payment for credit
-        return (self.get_debt() / self.term / 12 +
-               self.get_debt() * self.interest / 100 / 12)
-
-    def get_total_interest(self):
+    def get_total_interest(self):   # Total credit overpayment.
         debt_month = self.get_debt() / self.term / 12
         total_debt = self.get_debt()
-        period = self.term * 12
-        while period > 0:
+        period = 0
+        while period < self.term * 12:
+            period += 1
             self.total_interest += total_debt * self.interest / 100 / 12
             total_debt -= debt_month
-            period -= 1
         return self.total_interest
 
-    def get_payment_month(self):
+    def get_payment_month(self):  # Total month payment for credit. Return
+                                  # dictionary with payments for whole period.
         payments = {}
         debt_month = self.get_debt() / self.term / 12
         total_debt = self.get_debt()
         period = 0
         
-        while period < self.term * 12 + 1:
+        while period < self.term * 12:
             period += 1
             month_payment = total_debt * self.interest / 100 / 12 + debt_month
             payments[period] = '%.2f' % month_payment
@@ -86,7 +83,7 @@ class InfoMessage():
     total_payment: float = None
 
     @staticmethod
-    def printing(self):
+    def printing(self):   #Get the message with final calculations
         return self.MESSAGE.format(
             month_payment = self.month_payment,
             total_interest = '%.2f' % self.total_interest,
@@ -98,10 +95,38 @@ def create_credit():
                   'DIFF':DifferentialPayment
     }
     
-    amount = float(input('amount: '))
-    interest = float(input('interest: '))
-    downpayment = float(input('downpayment: '))
-    term = int(input('term: '))
+    try:
+        amount = float(input('amount: '))
+    except ValueError:
+        print('Необходимо ввести сумму кредита в виде положительного числа.')
+        exit()
+    if amount < 0:
+        raise Exception ('Сумма кредита не может быть отрицательной.')
+
+    try:
+        interest = float(input('interest: '))
+    except ValueError:
+        print('Необходимо ввести процент по кредиту в виде положительного числа от 0 до 100.')
+        exit()
+    if 0 > interest or interest > 100:
+        raise Exception ('Процент по кредиту не может быть отрицательным и быть больше 100.')
+
+    try:
+        downpayment = float(input('downpayment: '))
+    except ValueError:
+        print ('Первоначальный взнос должен быть в виде числа.')
+        exit()
+    if downpayment < 0:
+        raise Exception ('Первоначальный взнос не может быть меньше 0.')
+    
+    try:
+        term = int(input('term: '))
+    except ValueError:
+        print('Срок кредитования должен быть введен в виде целого числа.')
+        exit()
+    if term < 0:
+        raise Exception ('Срок кредитования не может быть отрицательным.')
+        
     calculator  = input('ANUIT - annuity payment,'
                         'DIFF - differential payment: ')
     
