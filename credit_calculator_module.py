@@ -84,7 +84,7 @@ class InfoMessage():
     total_payment: float = None
 
     @staticmethod
-    def printing(self):   #Get the message with final calculations
+    def printing(self):   #Get the message with final calculations.
         return self.MESSAGE.format(
             month_payment = self.month_payment,
             total_interest = '%.2f' % self.total_interest,
@@ -97,7 +97,7 @@ def read_data(message):   #Getting data from user's message.
     NAMES = ('amount', 'interest', 'downpayment', 'term', 'calculator')
     message_dict = {}
     message_dict.update([part.split(' ') for part in message.split('\n')])
-
+    
     for name in NAMES:
         for key in message_dict.keys():
             result = distance(name, key)
@@ -105,20 +105,57 @@ def read_data(message):   #Getting data from user's message.
                 data_dict[name] = message_dict[key]
 
 def create_credit():
-    CALCULATOR = {'a':AnnuityPayment,
-                  'd':DifferentialPayment
+    CALCULATOR = {'annuity':AnnuityPayment,
+                  'differential':DifferentialPayment
     }
-    amount = float(data_dict['amount'])
-    interest = float(data_dict['interest'])
-    downpayment = float(data_dict['downpayment'])
-    term = int(data_dict['term'])
-    calculator = data_dict['calculator']
+    CALCULATOR_NAMES = ('annuity', 'differential')
 
-    credit_object = CALCULATOR[calculator](amount, interest,
-                                           downpayment, term
-    )
+    try:
+        amount = float(data_dict['amount'])
+    except ValueError:
+        print('Cумма кредита должна быть положительным числом'
+              'без кавычек.')
+        exit()
+    if amount < 0:
+        raise Exception ('Сумма кредита не может быть отрицательной.')
+
+    try:
+        interest = float(data_dict['interest'])
+    except ValueError:
+        print('Процент по кредиту должен быть'
+              'положительным числом от 0 до 100 без знака %.')
+        exit()
+    if 0 > interest or interest > 100:
+        raise Exception ('Процент по кредиту не может быть отрицательным'
+                         'и быть больше 100.')
+    
+    try:
+        downpayment = float(data_dict['downpayment'])
+    except ValueError:
+        print ('Первоначальный взнос должен быть в виде числа.')
+        exit()
+    if downpayment < 0:
+        raise Exception ('Первоначальный взнос не может быть меньше 0.')
+    
+    try:
+        term = int(data_dict['term'])
+    except ValueError:
+        print('Срок кредитования должен быть целым числом.')
+        exit()
+    if term < 0:
+        raise Exception ('Срок кредитования не может быть отрицательным.')
+    
+    for key in CALCULATOR.keys():
+        if distance(key, data_dict['calculator']) < 5:
+            credit_object = CALCULATOR[key](amount, interest,
+                                                 downpayment, term
+                                                 )
+            break
+        else:
+            raise ValueError('Введите annuit или differential.')
+    
     return credit_object
-
+    
 
 def main(credit):
     """Function for creating user message with activity parameters. """
@@ -126,7 +163,7 @@ def main(credit):
     print(InfoMessage.printing(info))
 
 if __name__ == '__main__':
-    message = 'amnt: 1000000\nintresy: 5.5\ndownpament: 20000\ntewm: 5\ncalculator: a'
+    message = 'amnt: 1000000\nintresy: 5.5\ndownpament: 20000\ntewm: 7\ncalculator: anut'
     read_data(message)
     credit = create_credit()
     main(credit)
