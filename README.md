@@ -12,13 +12,13 @@ How to start the program:
 
 1) Import module credit_calculator_module.
 
-2) Create credit calculator object by calling function create_creadit()
+2) Create credit calculator object by calling function create_creadit().
 
 3) Input info: amount, interest, downpayment, term). Also input one of the
 next comands: ANUIT - for anuity payments calculation and DIFF for differential
 payments calculations.
 
-4) Call function main() with the providing before created object
+4) Call function main() with the providing before created object.
 
 Example:
 ```python

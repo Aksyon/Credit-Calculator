@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from Levenshtein import distance
 
 
 @dataclass
@@ -90,61 +91,43 @@ class InfoMessage():
             total_payment = '%.2f' % self.total_payment
             )
 
+data_dict = {}
+
+def read_data(message):   #Getting data from user's message.
+    NAMES = ('amount', 'interest', 'downpayment', 'term', 'calculator')
+    message_dict = {}
+    message_dict.update([part.split(' ') for part in message.split('\n')])
+
+    for name in NAMES:
+        for key in message_dict.keys():
+            result = distance(name, key)
+            if result < 5:
+                data_dict[name] = message_dict[key]
+
 def create_credit():
-    CALCULATOR = {'ANUIT':AnnuityPayment,
-                  'DIFF':DifferentialPayment
+    CALCULATOR = {'a':AnnuityPayment,
+                  'd':DifferentialPayment
     }
-    
-    try:
-        amount = float(input('amount: '))
-    except ValueError:
-        print('Необходимо ввести сумму кредита в виде положительного числа.')
-        exit()
-    if amount < 0:
-        raise Exception ('Сумма кредита не может быть отрицательной.')
+    amount = float(data_dict['amount'])
+    interest = float(data_dict['interest'])
+    downpayment = float(data_dict['downpayment'])
+    term = int(data_dict['term'])
+    calculator = data_dict['calculator']
 
-    try:
-        interest = float(input('interest: '))
-    except ValueError:
-        print('Необходимо ввести процент по кредиту в виде положительного числа от 0 до 100.')
-        exit()
-    if 0 > interest or interest > 100:
-        raise Exception ('Процент по кредиту не может быть отрицательным и быть больше 100.')
-
-    try:
-        downpayment = float(input('downpayment: '))
-    except ValueError:
-        print ('Первоначальный взнос должен быть в виде числа.')
-        exit()
-    if downpayment < 0:
-        raise Exception ('Первоначальный взнос не может быть меньше 0.')
-    
-    try:
-        term = int(input('term: '))
-    except ValueError:
-        print('Срок кредитования должен быть введен в виде целого числа.')
-        exit()
-    if term < 0:
-        raise Exception ('Срок кредитования не может быть отрицательным.')
-        
-    calculator  = input('ANUIT - annuity payment,'
-                        'DIFF - differential payment: ')
-    
-    try:
-        credit_object = CALCULATOR[calculator](amount, interest,
-                                               downpayment, term
-                                               )
-    except KeyError:
-        raise KeyError(f'Вы ввели не поддерживаемый кредитный калькулятор: '
-                       f'{calculator}')
+    credit_object = CALCULATOR[calculator](amount, interest,
+                                           downpayment, term
+    )
     return credit_object
-    
+
+
 def main(credit):
     """Function for creating user message with activity parameters. """
     info = Credit.show_payment_info(credit)
     print(InfoMessage.printing(info))
 
 if __name__ == '__main__':
+    message = 'amnt: 1000000\nintresy: 5.5\ndownpament: 20000\ntewm: 5\ncalculator: a'
+    read_data(message)
     credit = create_credit()
     main(credit)
     
