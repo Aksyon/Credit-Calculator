@@ -6,22 +6,30 @@ You need to provide the credit info (amount, interest, downpayment, term)
 and programm will give you the message with some data: month payment, total
 amount of interest for the whole period, total amount of payments.
 
+Levenshtein distance used for validation of input data in the function read_data().
+
 author: https://github.com/Aksyon / Aleksandr Aksyonov
 
 How to start the program:
 
 1) Import module credit_calculator_module.
 
-2) Create credit calculator object by calling function create_creadit().
-
-3) Input info: amount, interest, downpayment, term). Also input one of the
-next comands: ANUIT - for anuity payments calculation and DIFF for differential
+2) Give a message with info about credit parameters:
+```python
+message = 'amount: 1000000\ninterest: 5.5\ndownpayment: 20000\ntewm: 7\ncalculator: annuity'
+```
+There are annuit and differential calculators available (annuit - for anuity payments calculation and differential for differential
 payments calculations.
 
-4) Call function main() with the providing before created object.
+2) Read data from the message by calling function read_data().
+
+3) Call function create_credit() for creating object.
+
+4) Call function main() with the providing created object.
 
 Example:
 ```python
+read_data(message)
 credit = create_credit()
 main(credit)
 ```
