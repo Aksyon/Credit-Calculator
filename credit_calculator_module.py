@@ -9,8 +9,11 @@ class Credit():
     downpayment: float = 0
     term: int = 0
     total_interest: float = 0
-    
-    def get_debt(self):     #Total debt for refunding
+    CONSTANT_1 = 1200
+    CONSTANT_2 = 1
+    CONSTANT_3 = 12
+
+    def get_debt(self):     
         return self.amount - self.downpayment
         
     @staticmethod
@@ -19,25 +22,27 @@ class Credit():
             month_payment = self.get_payment_month(),
             total_interest = self.get_total_interest(),
             total_payment = self.total_interest + self.get_debt()
-        )
+            )
 
 @dataklass
 class AnnuityPayment(Credit):
     """Class with logic of calculations for annuity payment."""
+    
+    def get_payment_month(self):    
+        return (self.get_debt() * 
+               (self.interest/self.CONSTANT_1 + self.interest/self.CONSTANT_1/
+               ((self.CONSTANT_2 + self.interest/self.CONSTANT_1)**
+               (self.term*self.CONSTANT_3) - self.CONSTANT_2)))
 
-    def get_payment_month(self):    #Total month payment for credit
-        return self.get_debt() * (self.interest/100/12 + self.interest/100/12/
-            ((1 + self.interest/12/100)**(self.term*12) - 1))
-
-    def get_total_interest(self):   # Total credit overpayment.
+    def get_total_interest(self):   
         debt_amount = self.get_debt()
         period = 0
         
-        while period < self.term * 12:
+        while period < self.term * self.CONSTANT_3:
             period += 1
-            self.total_interest += (debt_amount * self.interest / 12 / 100)
+            self.total_interest += (debt_amount*self.interest/self.CONSTANT_1)
             debt_amount = debt_amount - (self.get_payment_month() -
-                          debt_amount * self.interest / 12 / 100)
+                          debt_amount*self.interest/self.CONSTANT_1)
         return self.total_interest
 
         
@@ -45,26 +50,26 @@ class AnnuityPayment(Credit):
 class DifferentialPayment(Credit):
     """Class with logic of calculations for annuity payment."""
 
-    def get_total_interest(self):   # Total credit overpayment.
-        debt_month = self.get_debt() / self.term / 12
+    def get_total_interest(self):  
+        debt_month = self.get_debt()/self.term/self.CONSTANT_3
         total_debt = self.get_debt()
         period = 0
-        while period < self.term * 12:
+        while period < self.term*self.CONSTANT_3:
             period += 1
-            self.total_interest += total_debt * self.interest / 100 / 12
+            self.total_interest += total_debt*self.interest/self.CONSTANT_1
             total_debt -= debt_month
         return self.total_interest
 
-    def get_payment_month(self):  # Total month payment for credit. Return
-                                  # dictionary with payments for whole period.
+    def get_payment_month(self): 
         payments = {}
-        debt_month = self.get_debt() / self.term / 12
+        debt_month = self.get_debt()/self.term/self.CONSTANT_3
         total_debt = self.get_debt()
         period = 0
         
         while period < self.term * 12:
             period += 1
-            month_payment = total_debt * self.interest / 100 / 12 + debt_month
+            month_payment = (total_debt*self.interest/
+                            self.CONSTANT_1 + debt_month)
             payments[period] = '%.2f' % month_payment
             total_debt -= debt_month
         return payments
@@ -83,7 +88,8 @@ class InfoMessage():
     total_payment: float = None
 
     @staticmethod
-    def printing(self):   #Get the message with final calculations.
+    def printing(self):
+        """Get the message with final calculations."""
         return self.MESSAGE.format(
             month_payment = self.month_payment,
             total_interest = '%.2f' % self.total_interest,
@@ -92,7 +98,8 @@ class InfoMessage():
 
 data_dict = {}
 
-def read_data(message):   #Getting data from user's message.
+def read_data(message):
+    """Getting data from user's message."""
     NAMES = ('amount', 'interest', 'downpayment', 'term', 'calculator')
     message_dict = {}
     message_dict.update([part.split(' ') for part in message.split('\n')])
