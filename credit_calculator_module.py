@@ -1,8 +1,7 @@
-from dataclasses import dataclass
 from Levenshtein import distance
+from dataklasses import dataklass
 
-
-@dataclass
+@dataklass
 class Credit():
     """Class for creating credit object."""
     amount: float
@@ -22,7 +21,7 @@ class Credit():
             total_payment = self.total_interest + self.get_debt()
         )
 
-@dataclass
+@dataklass
 class AnnuityPayment(Credit):
     """Class with logic of calculations for annuity payment."""
 
@@ -42,7 +41,7 @@ class AnnuityPayment(Credit):
         return self.total_interest
 
         
-@dataclass
+@dataklass
 class DifferentialPayment(Credit):
     """Class with logic of calculations for annuity payment."""
 
@@ -71,7 +70,7 @@ class DifferentialPayment(Credit):
         return payments
 
 
-@dataclass
+@dataklass
 class InfoMessage():
     """Class describe info object."""
     MESSAGE = ('Ежемесячный платеж по кредиту: {month_payment} руб.; '
@@ -147,9 +146,9 @@ def create_credit():
     
     for key in CALCULATOR.keys():
         if distance(key, data_dict['calculator']) < 5:
-            credit_object = CALCULATOR[key](amount, interest,
-                                                 downpayment, term
-                                                 )
+            credit_object = CALCULATOR[key](amount, interest, downpayment,
+                                            term, total_interest=0
+                                            )
             break
         else:
             raise ValueError('Введите annuit или differential.')
