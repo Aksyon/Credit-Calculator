@@ -8,6 +8,8 @@ amount of interest for the whole period, total amount of payments.
 
 Levenshtein distance used for validation of input data in the function read_data().
 
+Python dataclasses replaced with reactive dataklasses by David Beazley.
+
 author: https://github.com/Aksyon / Aleksandr Aksyonov
 
 How to start the program:
