@@ -29,10 +29,11 @@ class AnnuityPayment(Credit):
     """Class with logic of calculations for annuity payment."""
     
     def get_payment_month(self):    
-        return (self.get_debt() * 
+        payment_month = (self.get_debt() * 
                (self.interest/self.CONSTANT_1 + self.interest/self.CONSTANT_1/
                ((self.CONSTANT_2 + self.interest/self.CONSTANT_1)**
                (self.term*self.CONSTANT_3) - self.CONSTANT_2)))
+        return float('{:.2f}'.format(payment_month))
 
     def get_total_interest(self):   
         debt_amount = self.get_debt()
@@ -66,11 +67,11 @@ class DifferentialPayment(Credit):
         total_debt = self.get_debt()
         period = 0
         
-        while period < self.term * 12:
+        while period < self.term * self.CONSTANT_3:
             period += 1
             month_payment = (total_debt*self.interest/
                             self.CONSTANT_1 + debt_month)
-            payments[period] = '%.2f' % month_payment
+            payments[period] = '{:.2f}'.format(month_payment)
             total_debt -= debt_month
         return payments
 
@@ -92,15 +93,14 @@ class InfoMessage():
         """Get the message with final calculations."""
         return self.MESSAGE.format(
             month_payment = self.month_payment,
-            total_interest = '%.2f' % self.total_interest,
-            total_payment = '%.2f' % self.total_payment
+            total_interest = '{:.2f}'.format(self.total_interest),
+            total_payment = '{:.2f}'.format(self.total_payment)
             )
-
-data_dict = {}
 
 def read_data(message):
     """Getting data from user's message."""
     NAMES = ('amount', 'interest', 'downpayment', 'term', 'calculator')
+    data_dict = {}
     message_dict = {}
     message_dict.update([part.split(' ') for part in message.split('\n')])
     
@@ -109,10 +109,11 @@ def read_data(message):
             result = distance(name, key)
             if result < 5:
                 data_dict[name] = message_dict[key]
+    return data_dict
 
-def create_credit():
-    CALCULATOR = {'annuity':AnnuityPayment,
-                  'differential':DifferentialPayment
+def create_credit(data_dict):
+    CALCULATOR = {'annuity' : AnnuityPayment,
+                  'differential' : DifferentialPayment
     }
     CALCULATOR_NAMES = ('annuity', 'differential')
 
@@ -151,14 +152,15 @@ def create_credit():
     if term < 0:
         raise Exception ('Срок кредитования не может быть отрицательным.')
     
-    for key in CALCULATOR.keys():
-        if distance(key, data_dict['calculator']) < 5:
-            credit_object = CALCULATOR[key](amount, interest, downpayment,
-                                            term, total_interest=0
-                                            )
+    for name in CALCULATOR_NAMES:  
+        if distance(name, data_dict['calculator']) < 5:
+            credit_object = CALCULATOR[name](amount, interest,
+                                                       downpayment, term,
+                                                       total_interest=0
+                                                       )
             break
         else:
-            raise ValueError('Введите annuit или differential.')
+            raise Exception('Введите annuity или differential.')
     
     return credit_object
     
@@ -169,9 +171,9 @@ def main(credit):
     print(InfoMessage.printing(info))
 
 if __name__ == '__main__':
-    message = 'amnt: 1000000\nintresy: 5.5\ndownpament: 20000\ntewm: 7\ncalculator: anut'
-    read_data(message)
-    credit = create_credit()
+    message = 'amnt: 1000000\nintresy: 5.5\ndownpament: 20000\ntewm: 7\ncalculator: annuityt.'
+    data = read_data(message)
+    credit = create_credit(data)
     main(credit)
     
     
