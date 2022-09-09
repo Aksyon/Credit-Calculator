@@ -100,6 +100,7 @@ class InfoMessage():
 def read_data(message):
     """Getting data from user's message."""
     NAMES = ('amount', 'interest', 'downpayment', 'term', 'calculator')
+    LEVENSHTEIN_DISTANCE = 5
     data_dict = {}
     message_dict = {}
     message_dict.update([part.split(' ') for part in message.split('\n')])
@@ -107,7 +108,7 @@ def read_data(message):
     for name in NAMES:
         for key in message_dict.keys():
             result = distance(name, key)
-            if result < 5:
+            if result < LEVENSHTEIN_DISTANCE:
                 data_dict[name] = message_dict[key]
     return data_dict
 
@@ -116,7 +117,8 @@ def create_credit(data_dict):
                   'differential' : DifferentialPayment
     }
     CALCULATOR_NAMES = ('annuity', 'differential')
-
+    LEVENSHTEIN_DISTANCE = 5
+    
     try:
         amount = float(data_dict['amount'])
     except ValueError:
@@ -153,7 +155,7 @@ def create_credit(data_dict):
         raise Exception ('Срок кредитования не может быть отрицательным.')
     
     for name in CALCULATOR_NAMES:  
-        if distance(name, data_dict['calculator']) < 5:
+        if distance(name, data_dict['calculator']) < LEVENSHTEIN_DISTANCE:
             credit_object = CALCULATOR[name](amount, interest,
                                                        downpayment, term,
                                                        total_interest=0
@@ -175,5 +177,3 @@ if __name__ == '__main__':
     data = read_data(message)
     credit = create_credit(data)
     main(credit)
-    
-    
